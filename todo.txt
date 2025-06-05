@@ -1,0 +1,2 @@
+array dove pos 0 corrisponde a giornata 1 ecc..
+array con
