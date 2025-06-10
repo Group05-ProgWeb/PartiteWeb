@@ -4,41 +4,48 @@ import java.util.Random;
 import java.util.UUID;
 
 public class Match {
-    private String match_id;
+    private String matchId;
     private Team home;
     private Team away;
     private int matchDay;
-    private int result;
 
     public Match() {}
 
     public Match(Team home, Team away) {
-        this.match_id = UUID.randomUUID().toString();
+        this.matchId = UUID.randomUUID().toString();
         this.home = home;
         this.away = away;
-        this.result = -1;
     }
 
-    public String getMatch_id() {
-        return match_id;
+    public String getMatchId() {
+        return matchId;
     }
+
+    public void setMatchId(String matchId) {
+        this.matchId = matchId;
+    }
+
     public Team getHome() {
         return home;
     }
+
+    public void setHome(Team home) {
+        this.home = home;
+    }
+
     public Team getAway() {
         return away;
     }
+
+    public void setAway(Team away) {
+        this.away = away;
+    }
+
     public int getMatchDay() {
         return matchDay;
     }
 
     public void setMatchDay(int matchDay) {
         this.matchDay = matchDay;
-    }
-
-    public void populateResult() {
-        if(result == -1) {
-            result = new Random().nextInt(3);
-        }
     }
 }

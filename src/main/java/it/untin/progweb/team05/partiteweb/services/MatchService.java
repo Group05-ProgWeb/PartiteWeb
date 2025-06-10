@@ -1,22 +1,19 @@
 package it.untin.progweb.team05.partiteweb.services;
 
 import it.untin.progweb.team05.partiteweb.models.Match;
-import it.untin.progweb.team05.partiteweb.models.Result;
 import it.untin.progweb.team05.partiteweb.models.Team;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 
 @Service
 public class MatchService {
 
     private ArrayList<Team> teams;
     private ArrayList<Match> matches;
-    private ArrayList<Result> results;
+    private Map<String, Integer> results;
 
-    private final int tournament_days = 4;
+    private final int MATCHES_PER_DAY = 10;
 
     public MatchService() {
         this.teams = new ArrayList<>() {
@@ -32,12 +29,13 @@ public class MatchService {
             }
         };
         this.matches = new ArrayList<>();
-        this.results = new ArrayList<>();
+        this.results = new HashMap<>();
 
         generateMatches();
     }
 
     private void generateMatches() {
+        //generate matches
         for (int i = 0; i < teams.size(); i++) {
             for (int j = i + 1; j < teams.size(); j++) {
                 matches.add(new Match(teams.get(i), teams.get(j)));
@@ -47,25 +45,46 @@ public class MatchService {
 
         Collections.shuffle(matches);
 
-        for (int i = 0; i < matches.size(); i++) {
-            Match match = matches.get(i);
-            match.setMatchDay((i % tournament_days) + 1);
-            results.add(new Result(match.getMatch_id(), Result.randomWinner()));
+        //assign match day
+        int currentDay = 0;
+        int matchesOnCurrentDay = 0;
+        for (Match m : matches) {
+            m.setMatchDay(currentDay);
+            matchesOnCurrentDay++;
+
+            if(matchesOnCurrentDay >= MATCHES_PER_DAY) {
+                currentDay++;
+                matchesOnCurrentDay = 0;
+            }
+        }
+
+        //assign result
+        for(Match m : matches) {
+            results.put(m.getMatchId(), new Random().nextInt(3));
         }
     }
 
-//    public ArrayList<Result> getResults(Integer matchday) {
-//        ArrayList<Result> filtered_results = new ArrayList<>(results);
-//    }
+    public ArrayList<Team> getTeams() {
+        return teams;
+    }
 
-
-    public ArrayList<Match> getMatches(Integer matchday, Boolean sort) {
+    public ArrayList<Match> getMatches(Integer matchday) {
         ArrayList<Match> filtered_matches = new ArrayList<>(matches);
+        //sort by matchday only if not filtered by matchday
         if (matchday != null) {
             filtered_matches.removeIf(m -> m.getMatchDay() != matchday);
-        } else if(sort == Boolean.TRUE) {
+        } else {
             filtered_matches.sort(Comparator.comparingInt(Match::getMatchDay));
         }
-        return matches;
+        return filtered_matches;
+    }
+
+    public Map<String, Integer> getResults(Integer matchday) {
+        ArrayList<Match> filtered_matches = getMatches(matchday);
+        Map<String, Integer> filtered_results = new HashMap<>();
+        for (Match m : filtered_matches) {
+            filtered_results.put(m.getMatchId(), results.get(m.getMatchId()));
+        }
+        return filtered_results;
     }
 }
